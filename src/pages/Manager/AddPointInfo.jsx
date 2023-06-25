@@ -88,7 +88,7 @@ const AddPointInfo = ({ email_list, student_list }) => {
           setFormValue((prev) => ({ ...prev, email: value }));
           setStudentInfo(
             student_list[
-              student_list.findIndex((student) => (student.email = value))
+              student_list.findIndex((student) => (student.email === value))
             ]
           );
         }}
