@@ -14,8 +14,9 @@ import useAPI from "hooks/useApi";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { addPointInfo } from "services/manager";
+import MajorInfo from "./MajorInfo";
 
-const AddPointInfo = () => {
+const AddPointInfo = ({ email_list, student_list }) => {
   const saveRequest = useAPI({ queryFn: (payload) => addPointInfo(payload) });
   const [formValue, setFormValue] = useState({
     email: "",
@@ -28,6 +29,8 @@ const AddPointInfo = () => {
     major_id: "",
     status: "",
   });
+  const [student_info, setStudentInfo] = useState(null);
+
   const handleSave = () => {
     saveRequest
       .run({ student_email: formValue.email, ...formValue })
@@ -75,14 +78,24 @@ const AddPointInfo = () => {
           Lưu
         </Button>
       </div>{" "}
-      <MyInput
+      <MySelect
+        optionList={email_list}
         value={formValue.email}
         label="Email"
         name="email"
-        onChange={(e) =>
-          setFormValue((prev) => ({ ...prev, email: e.target.value }))
-        }
+        onChange={(e) => {
+          const value = e.target.value;
+          setFormValue((prev) => ({ ...prev, email: value }));
+          setStudentInfo(
+            student_list[
+              student_list.findIndex((student) => (student.email = value))
+            ]
+          );
+        }}
       />
+      {student_info && (
+        <MajorInfo register_contest_form={student_info.register_contest_form} />
+      )}
       <div className="flex flex-row items-center gap-3">
         <MyInput
           value={current_exam.name}

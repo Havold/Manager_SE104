@@ -15,6 +15,14 @@ export const register = (payload) => {
     data: payload,
   });
 };
+export const getStudentRegister = () => {
+  return axiosForManagerAPI
+    .request({
+      method: "get",
+      url: "/v1/manager/current/getUserRegister",
+    })
+    .then((res) => res.data.data);
+};
 export const login = async (payload) => {
   return await axiosForManagerAPI
     .request({

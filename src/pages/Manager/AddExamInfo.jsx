@@ -1,18 +1,21 @@
-import { Button, Container, Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import MyInput from "components/MyInput";
 import MyInputDate from "components/MyInputDate";
+import MySelect from "components/MySelect";
 import dayjs from "dayjs";
 import useAPI from "hooks/useApi";
 import React, { useState } from "react";
 import { addExamInfo } from "services/manager";
+import StudentInfo from "./StudentInfo";
 
-const AddExamInfo = () => {
+const AddExamInfo = ({ email_list, student_list }) => {
   const [formValue, setFormValue] = useState({
     email: "",
     exam_date: null,
     exam_venue: "",
     exam_room: "",
   });
+  const [student_info, setStudentInfo] = useState(null);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormValue((prev) => ({ ...prev, [name]: value }));
@@ -49,11 +52,20 @@ const AddExamInfo = () => {
       </div>
 
       <div className="flex flex-row gap-3 items-center  ">
-        <MyInput
+        <MySelect
+          optionList={email_list}
           value={formValue.email}
           label="Email"
           name="email"
-          onChange={handleChange}
+          onChange={(e) => {
+            const value = e.target.value;
+            setFormValue((prev) => ({ ...prev, email: value }));
+            setStudentInfo(
+              student_list[
+                student_list.findIndex((student) => (student.email = value))
+              ]
+            );
+          }}
         />
         <MyInputDate
           value={dayjs(formValue.exam_date)}
@@ -75,6 +87,7 @@ const AddExamInfo = () => {
           onChange={handleChange}
         />
       </div>
+      <StudentInfo student_info={student_info} />
     </div>
   );
 };
