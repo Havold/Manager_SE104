@@ -6,7 +6,7 @@ import { Navigate, Outlet } from "react-router-dom";
 const AuthLayout = () => {
   const loginStatus = useSelector((state) => state.loginStatus);
   if (loginStatus.isChecking) return <CircularProgress />;
-  if (loginStatus.isLogin) return <Navigate to="/info" />;
+  if (loginStatus.isLogin) return <Navigate to="/" />;
   return <Outlet />;
 };
 
