@@ -6,7 +6,7 @@ import jwt_decode from "jwt-decode";
 const AUTHENTICATION_URLS = {
   LOGIN: "/v1/manager/login",
   LOGOUT: "/v1/manager/current/logout",
-  REFRESH_TOKEN: "/v1/student/refresh_token",
+  REFRESH_TOKEN: "/v1/manager/refresh_token",
 };
 export const register = (payload) => {
   return axiosForManagerAPI.request({
@@ -44,7 +44,7 @@ export const logout = async () => {
 };
 export const getCurrentUser = async () => {
   return await axiosForManagerAPI
-    .request({ method: "get", url: "/v1/student/current" })
+    .request({ method: "get", url: "/v1/manager/current" })
     .then((response) => {
       return Promise.resolve(response);
     });
