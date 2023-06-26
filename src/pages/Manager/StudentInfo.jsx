@@ -64,6 +64,12 @@ const StudentInfo = ({ student_info }) => {
             {student_info.contact_info?.contact.province}
           </span>
         </Typography>{" "}
+        <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
+          Tổ hợp môn:{" "}
+          <span className="font-[400]">
+            {student_info.register_contest_form.exam_type}
+          </span>
+        </Typography>
       </div>
     </div>
   );

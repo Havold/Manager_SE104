@@ -7,6 +7,7 @@ import useAPI from "hooks/useApi";
 import React, { useState } from "react";
 import { addExamInfo } from "services/manager";
 import StudentInfo from "./StudentInfo";
+import { toast } from "react-toastify";
 
 const AddExamInfo = ({ email_list, student_list }) => {
   const [formValue, setFormValue] = useState({
@@ -29,7 +30,9 @@ const AddExamInfo = ({ email_list, student_list }) => {
         exam_venue: formValue.exam_venue,
         exam_room: formValue.exam_room,
       })
-      .then((res) => {})
+      .then((res) => {
+        toast.success("Thêm thông tin dự thi thành công");
+      })
       .catch((err) => {});
   };
   return (

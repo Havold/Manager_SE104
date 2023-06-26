@@ -16,6 +16,23 @@ import { toast } from "react-toastify";
 import { addPointInfo } from "services/manager";
 import MajorInfo from "./MajorInfo";
 
+const KHTN_list = [
+  { title: "Toán", name: "toan" },
+  { title: "Văn", name: "van" },
+  { title: "Anh", name: "anh" },
+  { title: "Lý", name: "ly" },
+  { title: "Hóa", name: "hoa" },
+  { title: "Sinh", name: "sinh" },
+];
+const KHXH_list = [
+  { title: "Toán", name: "toan" },
+  { title: "Văn", name: "van" },
+  { title: "Anh", name: "anh" },
+  { title: "Su", name: "su" },
+  { title: "Dia", name: "dia" },
+  { title: "GDCD", name: "gdcd" },
+];
+
 const AddPointInfo = ({ email_list, student_list }) => {
   const saveRequest = useAPI({ queryFn: (payload) => addPointInfo(payload) });
   const [formValue, setFormValue] = useState({
@@ -23,14 +40,32 @@ const AddPointInfo = ({ email_list, student_list }) => {
     point_list: [],
     pass_list: [],
   });
-  const [current_exam, setCurrentExam] = useState({ name: "", point: "" });
-  const [current_major, setCurrentMajor] = useState({
-    major_name: "",
-    major_id: "",
-    status: "",
-  });
   const [student_info, setStudentInfo] = useState(null);
+  const handlePointChange = (e) => {
+    const { name, value } = e.target;
 
+    if (parseFloat(value) > 10 || parseFloat(value) < 0) return;
+    const index = formValue.point_list.findIndex((ele) => ele.name === name);
+    setFormValue((prev) => ({
+      ...prev,
+      point_list: [
+        ...prev.point_list.slice(0, index),
+        { name, point: value },
+        ...prev.point_list.slice(index + 1),
+      ],
+    }));
+  };
+  const handlePassListChange = (e) => {
+    const { name } = e.target;
+    const index = parseInt(name);
+    setFormValue((prev) => ({
+      ...prev,
+      pass_list: prev.pass_list.map((major, i) => ({
+        ...major,
+        status: i === index ? "T" : i < index ? "X" : "O",
+      })),
+    }));
+  };
   const handleSave = () => {
     saveRequest
       .run({ student_email: formValue.email, ...formValue })
@@ -39,27 +74,7 @@ const AddPointInfo = ({ email_list, student_list }) => {
       })
       .catch((err) => {});
   };
-  const handleCurrentExamChange = (e) => {
-    const { name, value } = e.target;
-    setCurrentExam((prev) => ({ ...prev, [name]: value }));
-  };
 
-  const handleCurrentMajorChange = (e) => {
-    const { name, value } = e.target;
-    setCurrentMajor((prev) => ({ ...prev, [name]: value }));
-  };
-  const addExam = () => {
-    setFormValue((prev) => ({
-      ...prev,
-      point_list: [...formValue.point_list, current_exam],
-    }));
-  };
-  const addMajor = () => {
-    setFormValue((prev) => ({
-      ...prev,
-      pass_list: [...formValue.pass_list, current_major],
-    }));
-  };
   return (
     <div className="flex flex-col gap-7">
       <div className="flex flex-row items-center">
@@ -85,155 +100,137 @@ const AddPointInfo = ({ email_list, student_list }) => {
         name="email"
         onChange={(e) => {
           const value = e.target.value;
-          setFormValue((prev) => ({ ...prev, email: value }));
-          setStudentInfo(
-            student_list[
-              student_list.findIndex((student) => (student.email === value))
-            ]
+          const index = student_list.findIndex(
+            (student) => student.email === value
           );
+          const new_student = student_list[index];
+          const point_list = (
+            new_student.register_contest_form.exam_type === "KHTN"
+              ? KHTN_list
+              : KHXH_list
+          ).map((ele) => ({ name: ele.name, point: 0 }));
+          const pass_list =
+            new_student.register_contest_form.preference_majors.map(
+              (major) => ({ ...major, status: "" })
+            );
+          setFormValue((prev) => ({
+            ...prev,
+            email: value,
+            point_list,
+            pass_list,
+          }));
+          setStudentInfo(new_student);
         }}
       />
       {student_info && (
-        <MajorInfo register_contest_form={student_info.register_contest_form} />
+        <>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ border: "1px solid #000" }}>
+                  <TableCell sx={{ border: "1px solid #000" }}>
+                    <Typography sx={{ fontSize: 24, fontWeight: 700 }}>
+                      Môn thi
+                    </Typography>
+                  </TableCell>
+                  <TableCell sx={{ border: "1px solid #000" }}>
+                    <Typography sx={{ fontSize: 24, fontWeight: 700 }}>
+                      Điểm thi
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {(student_info.register_contest_form.exam_type === "KHTN"
+                  ? KHTN_list
+                  : KHXH_list
+                ).map((point, index) => (
+                  <TableRow
+                    sx={{ border: "1px solid #000" }}
+                    key={`point ${index}`}
+                  >
+                    <TableCell sx={{ border: "1px solid #000" }}>
+                      <Typography sx={{ fontSize: 20, fontWeight: 400 }}>
+                        {point.title}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={{ border: "1px solid #000" }}>
+                      <MyInput
+                        onChange={handlePointChange}
+                        value={formValue.point_list[index].point}
+                        placeholder={`Điểm ${point.title}`}
+                        name={point.name}
+                      ></MyInput>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>{" "}
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ border: "1px solid #000" }}>
+                  <TableCell sx={{ border: "1px solid #000" }}>
+                    <Typography sx={{ fontSize: 24, fontWeight: 700 }}>
+                      Ưu tiên
+                    </Typography>
+                  </TableCell>{" "}
+                  <TableCell sx={{ border: "1px solid #000" }}>
+                    <Typography sx={{ fontSize: 24, fontWeight: 700 }}>
+                      Mã trường
+                    </Typography>
+                  </TableCell>{" "}
+                  <TableCell sx={{ border: "1px solid #000" }}>
+                    <Typography sx={{ fontSize: 24, fontWeight: 700 }}>
+                      Mã ngành
+                    </Typography>
+                  </TableCell>
+                  <TableCell sx={{ border: "1px solid #000" }}>
+                    <Typography sx={{ fontSize: 24, fontWeight: 700 }}>
+                      Trạng thái
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {student_info?.register_contest_form?.preference_majors.map(
+                  (pass, index) => (
+                    <TableRow
+                      sx={{ border: "1px solid #000" }}
+                      key={`major ${index}`}
+                    >
+                      <TableCell sx={{ border: "1px solid #000" }}>
+                        <Typography sx={{ fontSize: 20, fontWeight: 400 }}>
+                          NV{index + 1}
+                        </Typography>
+                      </TableCell>{" "}
+                      <TableCell sx={{ border: "1px solid #000" }}>
+                        <Typography sx={{ fontSize: 20, fontWeight: 400 }}>
+                          {pass.school_id}
+                        </Typography>
+                      </TableCell>
+                      <TableCell sx={{ border: "1px solid #000" }}>
+                        <Typography sx={{ fontSize: 20, fontWeight: 400 }}>
+                          {pass.majors_id}
+                        </Typography>
+                      </TableCell>{" "}
+                      <TableCell sx={{ border: "1px solid #000" }}>
+                        <MySelect
+                          name={index.toString()}
+                          value={formValue.pass_list[index].status}
+                          optionList={["T", "X", "O"]}
+                          onChange={handlePassListChange}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  )
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
       )}
-      <div className="flex flex-row items-center gap-3">
-        <MyInput
-          value={current_exam.name}
-          label="Môn thi"
-          name="name"
-          onChange={handleCurrentExamChange}
-        />
-        <MyInput
-          value={current_exam.point}
-          label="Điểm"
-          name="point"
-          onChange={handleCurrentExamChange}
-        />
-        <Button
-          onClick={addExam}
-          disabled={!current_exam.name.length || !current_exam.point.length}
-          sx={{
-            color: "#fff",
-            marginTop: "auto",
-            background: "#4FE0B5",
-            ":hover": { background: "#4FE0B5" },
-          }}
-        >
-          Thêm
-        </Button>
-      </div>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ border: "1px solid #000" }}>
-              <TableCell sx={{ border: "1px solid #000" }}>
-                <Typography sx={{ fontSize: 24, fontWeight: 700 }}>
-                  Môn
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ border: "1px solid #000" }}>
-                <Typography sx={{ fontSize: 24, fontWeight: 700 }}>
-                  Điểm
-                </Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {formValue.point_list.map((point, index) => (
-              <TableRow
-                sx={{ border: "1px solid #000" }}
-                key={`point ${index}`}
-              >
-                <TableCell sx={{ border: "1px solid #000" }}>
-                  <Typography sx={{ fontSize: 20, fontWeight: 400 }}>
-                    {point.name}
-                  </Typography>
-                </TableCell>
-                <TableCell sx={{ border: "1px solid #000" }}>
-                  <Typography sx={{ fontSize: 20, fontWeight: 400 }}>
-                    {point.point}
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <div className="flex flex-col gap-3"></div>
-      <div className="flex flex-row items-center gap-3">
-        <MyInput
-          value={current_major.major_name}
-          label="Tên nguyện vọng"
-          name="major_name"
-          onChange={handleCurrentMajorChange}
-        />
-        <MyInput
-          value={current_major.major_id}
-          label="Mã nguyện vọng"
-          name="major_id"
-          onChange={handleCurrentMajorChange}
-        />
-        <MySelect
-          optionList={["T", "O", "X"]}
-          value={current_major.status}
-          label="Trạng thái"
-          name="status"
-          onChange={handleCurrentMajorChange}
-        />{" "}
-        <Button
-          onClick={addMajor}
-          disabled={
-            !current_major.status.length ||
-            !current_major.major_id.length ||
-            !current_major.major_name.length
-          }
-          sx={{
-            color: "#fff",
-            marginTop: "auto",
-            background: "#4FE0B5",
-            ":hover": { background: "#4FE0B5" },
-          }}
-        >
-          Thêm
-        </Button>
-      </div>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ border: "1px solid #000" }}>
-              <TableCell sx={{ border: "1px solid #000" }}>
-                <Typography sx={{ fontSize: 24, fontWeight: 700 }}>
-                  Tên nguyện vọng
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ border: "1px solid #000" }}>
-                <Typography sx={{ fontSize: 24, fontWeight: 700 }}>
-                  Trạng thái
-                </Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {formValue.pass_list.map((pass, index) => (
-              <TableRow
-                sx={{ border: "1px solid #000" }}
-                key={`major ${index}`}
-              >
-                <TableCell sx={{ border: "1px solid #000" }}>
-                  <Typography sx={{ fontSize: 20, fontWeight: 400 }}>
-                    {pass.major_name}
-                  </Typography>
-                </TableCell>
-                <TableCell sx={{ border: "1px solid #000" }}>
-                  <Typography sx={{ fontSize: 20, fontWeight: 400 }}>
-                    {pass.status}
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
     </div>
   );
 };
