@@ -28,8 +28,8 @@ const KHXH_list = [
   { title: "Toán", name: "toan" },
   { title: "Văn", name: "van" },
   { title: "Anh", name: "anh" },
-  { title: "Su", name: "su" },
-  { title: "Dia", name: "dia" },
+  { title: "Sử", name: "su" },
+  { title: "Địa", name: "dia" },
   { title: "GDCD", name: "gdcd" },
 ];
 
