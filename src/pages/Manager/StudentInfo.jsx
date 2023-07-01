@@ -51,6 +51,7 @@ const StudentInfo = ({ student_info }) => {
         <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
           Địa chỉ hộ khẩu:{" "}
           <span className="font-[400]">
+            {student_info.contact_info?.contact.house_number},{" "}
             {student_info.contact_info?.household.commune} ,{" "}
             {student_info.contact_info?.household.district} ,{" "}
             {student_info.contact_info?.household.province}
@@ -59,8 +60,9 @@ const StudentInfo = ({ student_info }) => {
         <Typography sx={{ fontSize: 16, fontWeight: 600 }}>
           Địa chỉ liên lạc:{" "}
           <span className="font-[400]">
-            {student_info.contact_info?.contact.commune} ,{" "}
-            {student_info.contact_info?.contact.district} ,{" "}
+            {student_info.contact_info?.contact.house_number},{" "}
+            {student_info.contact_info?.contact.commune},{" "}
+            {student_info.contact_info?.contact.district},{" "}
             {student_info.contact_info?.contact.province}
           </span>
         </Typography>{" "}
